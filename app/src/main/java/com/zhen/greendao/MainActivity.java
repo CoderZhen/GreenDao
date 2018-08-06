@@ -4,9 +4,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatEditText;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import com.zhen.greendao.adapter.GreenDaoAdapter;
 import com.zhen.greendao.entity.Student;
 import com.zhen.greendao.entity.gen.StudentDao;
 
@@ -20,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     private AppCompatEditText et_id, et_name, et_age, et_gender;
     private RecyclerView rv_db;
     private StudentDao studentDao;
+    private List<Student> list;
 
 
     @Override
@@ -30,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
         myApp = (MyApp) getApplication();
         studentDao = myApp.getStudentDao();
 
+        //插入
         btn_insert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -40,6 +44,17 @@ public class MainActivity extends AppCompatActivity {
                 save();
             }
         });
+        //查询
+        btn_query.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        rv_db.setLayoutManager(new LinearLayoutManager(this));
+        GreenDaoAdapter adapter = new GreenDaoAdapter(list);
+        rv_db.setAdapter(adapter);
     }
 
     //插入操作
@@ -59,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
     //插入或替换
     private void insertOrReplace() {
-        studentDao.insertOrReplace(new Student(null,"测试",222,"男"));
+        studentDao.insertOrReplace(new Student(null, "测试", 222, "男"));
         clear();
     }
 
@@ -72,8 +87,14 @@ public class MainActivity extends AppCompatActivity {
         studentDao.insertOrReplaceInTx(list);
     }
 
+    //save
     private void save() {
         studentDao.save(new Student(1L, "xiaoming", 222, "man"));
+    }
+
+
+    private void query() {
+        list = studentDao.queryRaw("id = ?", "1");
     }
 
     private Student getStudent() {

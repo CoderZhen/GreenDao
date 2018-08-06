@@ -12,11 +12,11 @@ import com.zhen.greendao.entity.Student;
 
 import java.util.List;
 
-public class GreendDaoAdapter extends RecyclerView.Adapter<GreendDaoAdapter.ViewHolder> {
+public class GreenDaoAdapter extends RecyclerView.Adapter<GreenDaoAdapter.ViewHolder> {
 
     List<Student> list;
 
-    public GreendDaoAdapter(List<Student> list) {
+    public GreenDaoAdapter(List<Student> list) {
         this.list = list;
     }
 
