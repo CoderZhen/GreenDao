@@ -12,7 +12,7 @@ import com.zhen.greendao.entity.Student;
 
 import java.util.List;
 
-public class GreenDaoAdapter extends RecyclerView.Adapter<GreenDaoAdapter.ViewHolder> {
+public class GreenDaoAdapter extends RecyclerView.Adapter<GreenDaoAdapter.MyViewHolder> {
 
     List<Student> list;
 
@@ -22,13 +22,13 @@ public class GreenDaoAdapter extends RecyclerView.Adapter<GreenDaoAdapter.ViewHo
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.student_item, parent, false);
-        return new ViewHolder(view);
+        return new MyViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         Student student = list.get(position);
         holder.item_id.setText(String.valueOf(student.getId()));
         holder.item_name.setText(student.getName());
@@ -41,11 +41,11 @@ public class GreenDaoAdapter extends RecyclerView.Adapter<GreenDaoAdapter.ViewHo
         return list.size();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    class MyViewHolder extends RecyclerView.ViewHolder {
 
         private AppCompatTextView item_id, item_name, item_age, item_gender;
 
-        ViewHolder(View itemView) {
+        MyViewHolder(View itemView) {
             super(itemView);
             item_id = itemView.findViewById(R.id.item_id);
             item_name = itemView.findViewById(R.id.item_name);

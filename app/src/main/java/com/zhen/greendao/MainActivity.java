@@ -16,13 +16,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity-vv";
 
     private MyApp myApp;
     private AppCompatButton btn_insert, btn_query, btn_delete, btn_update;
     private AppCompatEditText et_id, et_name, et_age, et_gender;
     private RecyclerView rv_db;
     private StudentDao studentDao;
-    private List<Student> list;
+    private List<Student> queryList = new ArrayList<>();
+    private GreenDaoAdapter adapter;
 
 
     @Override
@@ -40,20 +42,29 @@ public class MainActivity extends AppCompatActivity {
                 //insert();
                 //insertInTx();
                 //insertOrReplace();
-                //insertOrReplaceInTx();
-                save();
+                insertOrReplaceInTx();
+                //save();
             }
         });
         //查询
         btn_query.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                queryList.clear();
+
+                //load();
+                //loadAll();
+                //whereName();
+                //like();
+                notEq();
+
+                adapter.notifyDataSetChanged();
 
             }
         });
 
         rv_db.setLayoutManager(new LinearLayoutManager(this));
-        GreenDaoAdapter adapter = new GreenDaoAdapter(list);
+        adapter = new GreenDaoAdapter(queryList);
         rv_db.setAdapter(adapter);
     }
 
@@ -74,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
 
     //插入或替换
     private void insertOrReplace() {
-        studentDao.insertOrReplace(new Student(null, "测试", 222, "男"));
+        studentDao.insertOrReplace(getStudent());
         clear();
     }
 
@@ -92,9 +103,38 @@ public class MainActivity extends AppCompatActivity {
         studentDao.save(new Student(1L, "xiaoming", 222, "man"));
     }
 
+    //查询操作
 
-    private void query() {
-        list = studentDao.queryRaw("id = ?", "1");
+    //按主键查询
+    private void load() {
+        Student student = studentDao.load(Long.valueOf(et_id.getText().toString()));
+        queryList.add(student);
+    }
+
+    //查询全部
+    private void loadAll() {
+        queryList.addAll(studentDao.loadAll());
+    }
+
+    //条件查询 name
+    private void whereName() {
+        String name = et_name.getText().toString();
+        Student unique = studentDao.queryBuilder().where(StudentDao.Properties.Name.eq(name)).unique();
+        queryList.add(unique);
+    }
+
+    //模糊查询 gender
+    private void like() {
+        String gender = et_gender.getText().toString();
+        List<Student> list = studentDao.queryBuilder().where(StudentDao.Properties.Gender.like(gender + "%")).list();
+        queryList.addAll(list);
+    }
+
+    //notEq 查询不是该字段的数据
+    private void notEq(){
+        String gender = et_gender.getText().toString();
+        List<Student> list = studentDao.queryBuilder().where(StudentDao.Properties.Gender.notEq(gender)).list();
+        queryList.addAll(list);
     }
 
     private Student getStudent() {
