@@ -1,5 +1,6 @@
 package com.zhen.greendao;
 
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatButton;
@@ -13,6 +14,7 @@ import com.zhen.greendao.entity.Student;
 import com.zhen.greendao.entity.gen.StudentDao;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -53,13 +55,32 @@ public class MainActivity extends AppCompatActivity {
                 queryList.clear();
 
                 //load();
-                //loadAll();
+                loadAll();
                 //whereName();
                 //like();
-                notEq();
+                //notEq();
 
                 adapter.notifyDataSetChanged();
 
+            }
+        });
+
+        btn_delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //delete();
+                //deleteInTx();
+                //deleteByKey();
+                //deleteByKeyInTx();
+                deleteAll();
+
+            }
+        });
+
+        btn_update.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                upDate();
             }
         });
 
@@ -131,10 +152,62 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //notEq 查询不是该字段的数据
-    private void notEq(){
+    private void notEq() {
         String gender = et_gender.getText().toString();
         List<Student> list = studentDao.queryBuilder().where(StudentDao.Properties.Gender.notEq(gender)).list();
         queryList.addAll(list);
+    }
+
+    //删除
+
+    //单个删除数据
+    private void delete() {
+        //获取要删除的数据
+        String name = et_name.getText().toString();
+        Student student = studentDao.queryBuilder().where(StudentDao.Properties.Name.eq(name)).unique();
+        //删除操作
+        studentDao.delete(student);
+    }
+
+    //批量删除数据
+    private void deleteInTx() {
+        //要删除的数据
+        Student stu1 = new Student(1L, "one", 18, "man");
+        Student stu2 = new Student(3L, "three", 15, "man");
+
+        studentDao.deleteInTx(stu1, stu2);
+
+    }
+
+    //根据主键删除数据
+    private void deleteByKey() {
+        Long id = Long.valueOf(et_id.getText().toString());
+        studentDao.deleteByKey(id);
+    }
+
+    //根据主键批量删除数据
+    private void deleteByKeyInTx() {
+        studentDao.deleteByKeyInTx(1L, 3L);
+    }
+
+    //全部删除
+    private void deleteAll(){
+        studentDao.deleteAll();
+    }
+
+    //修改操作
+
+    //单个修改 upDate
+    private void upDate() {
+        //查询需要修改的数据
+        Long id = Long.valueOf(et_id.getText().toString());
+        Student newStudent = studentDao.load(id);
+
+        //修改名字
+        String name = et_name.getText().toString();
+        newStudent.setName(name);
+        //修改
+        studentDao.update(newStudent);
     }
 
     private Student getStudent() {
