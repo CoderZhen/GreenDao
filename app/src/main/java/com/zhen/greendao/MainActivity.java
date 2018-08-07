@@ -1,6 +1,5 @@
 package com.zhen.greendao;
 
-import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatButton;
@@ -14,7 +13,6 @@ import com.zhen.greendao.entity.Student;
 import com.zhen.greendao.entity.gen.StudentDao;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -80,7 +78,8 @@ public class MainActivity extends AppCompatActivity {
         btn_update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                upDate();
+                //update();
+                updateInTx();
             }
         });
 
@@ -191,15 +190,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //全部删除
-    private void deleteAll(){
+    private void deleteAll() {
         studentDao.deleteAll();
     }
 
     //修改操作
 
-    //单个修改 upDate
-    private void upDate() {
-        //查询需要修改的数据
+    //单个修改 update
+    private void update() {
+        //使用主键查询需要修改的数据
         Long id = Long.valueOf(et_id.getText().toString());
         Student newStudent = studentDao.load(id);
 
@@ -208,6 +207,19 @@ public class MainActivity extends AppCompatActivity {
         newStudent.setName(name);
         //修改
         studentDao.update(newStudent);
+    }
+
+    //批量修改数据
+    private void updateInTx() {
+        Integer age = Integer.valueOf(et_age.getText().toString());
+        //查询获取所有数据
+        List<Student> list = studentDao.loadAll();
+        for (int i = 0; i < list.size(); i++) {
+            //年龄统一修改
+            list.get(i).setAge(age);
+        }
+        //批量修改数据
+        studentDao.updateInTx(list);
     }
 
     private Student getStudent() {
