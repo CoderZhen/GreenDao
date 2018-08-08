@@ -49,14 +49,14 @@ public class MainActivity extends AppCompatActivity {
         btn_insert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //insert();
+                insert();
                 //insertInTx();
                 //insertOrReplace();
                 //insertOrReplaceInTx();
                 //save();
 
                 //RxJava批量插入 可批量同时插入三个
-                mPublish.onNext(getStudent());
+                //mPublish.onNext(getStudent());
             }
         });
         //查询操作
@@ -126,7 +126,6 @@ public class MainActivity extends AppCompatActivity {
     //插入或替换
     private void insertOrReplace() {
         studentDao.insertOrReplace(getStudent());
-        clear();
     }
 
     //批量插入或替换
