@@ -6,6 +6,7 @@ import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 
 import com.zhen.greendao.adapter.GreenDaoAdapter;
@@ -14,6 +15,12 @@ import com.zhen.greendao.entity.gen.StudentDao;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity-vv";
@@ -25,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private StudentDao studentDao;
     private List<Student> queryList = new ArrayList<>();
     private GreenDaoAdapter adapter;
+    private PublishSubject<Student> mPublish;
 
 
     @Override
@@ -32,21 +40,26 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
+
         myApp = (MyApp) getApplication();
         studentDao = myApp.getStudentDao();
+        mPublish = PublishSubject.create();
 
-        //插入
+        //插入操作
         btn_insert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //insert();
                 //insertInTx();
                 //insertOrReplace();
-                insertOrReplaceInTx();
+                //insertOrReplaceInTx();
                 //save();
+
+                //RxJava批量插入 可批量同时插入三个
+                mPublish.onNext(getStudent());
             }
         });
-        //查询
+        //查询操作
         btn_query.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -63,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //删除操作
         btn_delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -75,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //修改操作
         btn_update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -86,12 +101,17 @@ public class MainActivity extends AppCompatActivity {
         rv_db.setLayoutManager(new LinearLayoutManager(this));
         adapter = new GreenDaoAdapter(queryList);
         rv_db.setAdapter(adapter);
+
+        //RxJava批量插入
+        mPublish.buffer(3)
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .observeOn(Schedulers.io())
+                .subscribe(RxInsertOrReplaceInTx());
     }
 
     //插入操作
     private void insert() {
         studentDao.insert(getStudent());
-        clear();
     }
 
     //批量插入
@@ -122,6 +142,27 @@ public class MainActivity extends AppCompatActivity {
     private void save() {
         studentDao.save(new Student(1L, "xiaoming", 222, "man"));
     }
+
+    //RxJava2批量插入操作
+    private Observer<List<Student>> RxInsertOrReplaceInTx() {
+        return new DisposableObserver<List<Student>>() {
+            @Override
+            public void onNext(List<Student> students) {
+                studentDao.insertInTx(students);
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                Log.d(TAG, "onError: " + e);
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "onComplete: ");
+            }
+        };
+    }
+
 
     //查询操作
 
@@ -227,7 +268,7 @@ public class MainActivity extends AppCompatActivity {
         String name = et_name.getText().toString().trim();
         Integer age = Integer.valueOf(et_age.getText().toString().trim());
         String gender = et_gender.getText().toString().trim();
-
+        clear();
         return new Student(id, name, age, gender);
 
     }
